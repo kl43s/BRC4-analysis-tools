@@ -581,33 +581,13 @@ if __name__ == "__main__":
     
     
     if args.choice in ["e", "encrypt"]:
-        #1 --> abcd@123
-        data = '{"cds":{"auth":"Password123"},"mtdt":{"h_name":"DESKTOP-ROC7D7V","wver":"10.0","bld":"17763","p_name":"QwA6AFwAVQBzAGUAcgBzAFwAbQBhAGwAdwBhAHIAZQBcAEQAZQBzAGsAdABvAHAAXABHAG8AYQBsAHMAXABiAHIAdQB0AGUAcgBhAHQAZQBsAFwAMQBcAHMAdABhAGcAZQAxAC4AZQB4AGUA","uid":"malware","pid":"904"}}'
-        
-        #2 --> P@ssw0rd
-        data = '{"cds":{"auth":"12345"},"mtdt":{"h_name":"DESKTOP-ROC7D7V","wver":"x64/10.0","arch":"x64","bld":"17763","p_name":"QwA6AFwAVQBzAGUAcgBzAFwAbQBhAGwAdwBhAHIAZQBcAEQAZQBzAGsAdABvAHAAXABHAG8AYQBsAHMAXABiAHIAdQB0AGUAcgBhAHQAZQBsAFwAMgBcADIALgBlAHgAZQA=","uid":"malware","pid":"7816"}}'
-        
-        #7 --> K22OQUL2HK0GLVE2
-        #data = '{"cds":{"auth":"836R1L09SGBPSABK"},"mtdt":{"h_name":"DESKTOP-ROC7D7V","wver":"x64/10.0","arch":"x64","bld":"17763","p_name":"QwA6AFwAVQBzAGUAcgBzAFwAbQBhAGwAdwBhAHIAZQBcAEQAZQBzAGsAdABvAHAAXABHAG8AYQBsAHMAXABiAHIAdQB0AGUAcgBhAHQAZQBsAFwANwBcADMAZQBkADIAMQBhADQAYgBmAGMAZgA5ADgAMwA4AGUAMAA2AGEAZAAzADAANQA4AGQAMQAzAGQANQBjADIAOAAwADIANgBjADEANwBkAGMAOQA5ADYAOQA1ADMAYQAyADIAYQAwADAAZgAwADYAMAA5AGIAMABkAGYAMwBiADkA","uid":"malware","pid":"4644"}}'
-        
-        #9 --> A.B.C.D
-        #data = '{"cds":{"auth":"12345"},"mtdt":{"h_name":"DESKTOP-ROC7D7V","wver":"x64/10.0","arch":"x64","bld":"17763","p_name":"QwA6AFwAVQBzAGUAcgBzAFwAbQBhAGwAdwBhAHIAZQBcAEQAZQBzAGsAdABvAHAAXABHAG8AYQBsAHMAXABiAHIAdQB0AGUAcgBhAHQAZQBsAFwAOQBcADkALgBlAHgAZQA=","uid":"malware","pid":"2400"}}' 
+        #insert json in data
+        data = ''
         encryptSring(data, key, values1, long_data_with_pass, long_pass, offset)
         
     elif args.choice in ["d", "decrypt"]:
-        #1
-        data = "mZAzAIdw5vwO3VfCEJO3qbGV4i6WOkL0F+hODX+DwwbFgHXcnIyhd0LjR6czAVBm67QRdl95PcnAVgaR9d9xlSjrNz9ZkdXYIBDNXzn2dz63eOM5HCNi36ve7qVuMiNDqxnESmNutYbCjRZqJnqh98TtM2zhBRK+tD8cZF0vuxUPdkGK9wu+QXdt3sR3edv3D2l+0lTrm9+q6FoyAoyWZiSHj4OGNnqV2Bb0EOqN9M4oDubKD3TRMctl/YuKSMQi3nxvFMr+F6Tfe697wSoNVSlTlb6TKRuk7wz6QjV9JFj7kZzfU4CBnfkqBJWnLhF1i8m6aTnRleSgvBqqX8gucsOoKVaD4hRzARMPGtiRL08/U0NYvFTPsnE1BvLVvIh5"
-
-        #2
-        data = "QuCQj4bN8szCPQA10FxaqwQB4jMhuCTkNXvCD4rwZoshFeQosOYWIWZtiAQZso0ITWduNhzSbiQFr2DjexY1Wn3eA6IWWGl0bcmfJxAURtTHuAOXIP7zZGgltxEZeMXU5yUCp/A2FFgqRcDM5mRpIeO7hwT8QXy/8i9zgiC6htQ9EQCMasX0+WYQzG83PWrFynA6uWWDKXfjr7x5T9vZoE8sQWoC1TRyy6WDbg6VJPlKSHRyEQy0d1/dH3nr+vJvfuX+c9Ktv4GguDqBn7eKqvDhgiPmkGTTim2aNys3TooiKa3nWYEDxXgkpyZ8D8+J8SWKZn/sKQDNzqXaU3An+K6rehH3D6pFjNx308+bOMdJ7/nZgfAsf03MDrmyY0lb"
-        
-        #7
-        #data = "bdL92sD5WWqU5/8ltMsA/N+GuEzqgR3QPezIxPogYQ4bi9fybdfL74/X+JtI3BFdo9XfPP4w5Lq79KEDQAGQfl7FNC7GFU9pTte3vODcqYUnSRBERfaDHmwosDjMGFEBOmLSQ2K8HJ5ObO33TKoeCPRrgxOphDnb2tFGHg4g7T9Lq1vwiMkYeoyaEKLXWP3YX7cKDVNPyYSGfni1k8biKyVGQPYK3XPXkDKsDZuKEEeaalQg7mWG7gkUkH25rUwlJvy3TyasLSRGn8TT06X8S4MYlD7s4aJZL8bk/7XsToV+Cd7YVmGqmuiAQlEOSSg1H9p7fS7zkvg5YXA+1YcFJbefl9mlekrHjRPQZTQQ2sdk+Eq+9nkZXXR5+esLUohnVLMciLjqQ84sNNn35TSR1jvK0mVrKiek1e1hu/3lXeNYur1Lgi7Y8P1mejSY+OX3dbvtgFj+P8230753mNuS0djVu24vIoqIrs+0O8j/I6rQ9lKTbhfqO6no//jWAWWuSDV6jyEACxeUh3iCRXbkYOwseCymWU9LBwph9o3gfakikyOUk5gu6t2E8uWo748kgP7pwSCb1Fv6BYElqJl/zQ=="
-        
-        #9
-        #data = "/8cl54RMSwKsyGS2N+mrNzPiOltHSA294JMC809wb9y0CJd9cwZQIXqQq/Wk6403SXAsz/5J8z1naFpCsFY9ZDqzWFPjKQTLkePwvA+4bpwv8jbXw8C3nCsll5eqtiTUDRhn5eHgCXUpARJwh0fVPlp7A4NobJ73SbIb7bhv1rftN5z7fNVtMIz3rZgaQpYfsAi8JlTy/uRB8rIHxnxYGeRMnjosVdwIQHzE9Ve0SKLZSsg3OvV5zAay5OStMYDaVeNsy8keMYZxqacdn9ZUyJPGePfUFAMty16/KdSDITaqKXEogr2XqQsEyYawlI9nbkNQckZ7u5X8zIEiqsjwq79kSk8pgME1L9iDF+Aeg5CJq77iOgW8g3WIPgcLIoru"
-        #data = "mZAzAIdw5vwO3VfCEJO3qfFmxJfa1dwoPefjEi8se7ML0IHlL3Fanb+LhDAfqRfpdKgqYmg9MfyEXtH2sbjMCpCYSx8g28dd52FrYot5ORBZylVzibHdUYZb/bMwuiA8ewOJTziUXnUif23gJuT0gyfrKOquETBbnf5JOWOs2fUhiBaeyidCwoij8Q5cQLg9S9Pk4IXC6S6F82fl+Q75H3xELHzC9Y41NFCjOWd8QZ2+ALJN1Zy75gsYt4xfo7RAT+hJSG/GRtQA14XvgXuK6N7LU0EAX6rmQslEZZQxwu2p0o3q6upqGS2/x6qa9YC9GvshKjUnaBZhRAffsCKy+XXYmh+SS5HFC4gsvEm6W9JubxI35Nm/a17IgNpVcST8wAm/OfoSAZ2jU5sqMv9DEA=="
-        
+        #insert base64 value in data
+        data = ""
         decryptSring(data, key, long_data_with_pass, long_pass, offset)
 
 
