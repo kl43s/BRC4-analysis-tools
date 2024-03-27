@@ -2,48 +2,44 @@ import base64
 import argparse
 import sys
 
+
 def encryptSring(data, key, values1, long_data_with_pass, long_pass, offset):
     data = [i for i in data]
     encryptString = []
 
     for i in range(16):
-        if ((len(data)+i)%16) == 0:
-            len_max = len(data)+i
+        if ((len(data) + i) % 16) == 0:
+            len_max = len(data) + i
             break
-
 
     for j in range(i):
         if j == 0:
-            data.append(0x0d)
+            data.append(0x0D)
         elif j == 1:
-            data.append(0x0a)
+            data.append(0x0A)
         else:
             data.append(0)
 
     T = 0
-    while T < (len_max/16):
+    while T < (len_max / 16):
         newpass = []
         for i in range(16):
             try:
-                tmp = ord(data[(16*T)+i]) ^ key[i]
+                tmp = ord(data[(16 * T) + i]) ^ key[i]
             except TypeError:
-                tmp = data[(16*T)+i] ^ key[i]
+                tmp = data[(16 * T) + i] ^ key[i]
             newpass.append(tmp)
-            
-        #print for debug  
-        #print ("\n\n newpass ==> ", [hex(i) for i in newpass] )
+
         tempo_pass = []
-        for i in range(0xa0, len(long_data_with_pass)):
+        for i in range(0xA0, len(long_data_with_pass)):
             tempo_pass.append(long_data_with_pass[i])
 
-        #print for debug
-        #print("\n\n tempo_pass ==> ", [hex(i) for i in tempo_pass] )
             ##############
             # START LOOP #
             ##############
-            
+
         count = 0
-        while (count < 9):
+        while count < 9:
             for i in range(16):
                 tmp = newpass[i]
                 tmp = values1[tmp]
@@ -52,7 +48,6 @@ def encryptSring(data, key, values1, long_data_with_pass, long_pass, offset):
             tmppass = []
             for i in [0, 5, 10, 15, 4, 9, 14, 3, 8, 13, 2, 7, 12, 1, 6, 11]:
                 tmppass.append(newpass[i])
-
 
             valueEngine1 = [ 
                 0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0E, 0x10, 0x12, 0x14, 0x16, 0x18, 0x1A, 0x1C, 0x1E, 
@@ -71,7 +66,7 @@ def encryptSring(data, key, values1, long_data_with_pass, long_pass, offset):
                 0xBB, 0xB9, 0xBF, 0xBD, 0xB3, 0xB1, 0xB7, 0xB5, 0xAB, 0xA9, 0xAF, 0xAD, 0xA3, 0xA1, 0xA7, 0xA5, 
                 0xDB, 0xD9, 0xDF, 0xDD, 0xD3, 0xD1, 0xD7, 0xD5, 0xCB, 0xC9, 0xCF, 0xCD, 0xC3, 0xC1, 0xC7, 0xC5, 
                 0xFB, 0xF9, 0xFF, 0xFD, 0xF3, 0xF1, 0xF7, 0xF5, 0xEB, 0xE9, 0xEF, 0xED, 0xE3, 0xE1, 0xE7, 0xE5 
-                ]
+            ]
                 
             valueEngine2 = [ 
                 0x00, 0x03, 0x06, 0x05, 0x0C, 0x0F, 0x0A, 0x09, 0x18, 0x1B, 0x1E, 0x1D, 0x14, 0x17, 0x12, 0x11, 
@@ -90,167 +85,203 @@ def encryptSring(data, key, values1, long_data_with_pass, long_pass, offset):
                 0x6B, 0x68, 0x6D, 0x6E, 0x67, 0x64, 0x61, 0x62, 0x73, 0x70, 0x75, 0x76, 0x7F, 0x7C, 0x79, 0x7A, 
                 0x3B, 0x38, 0x3D, 0x3E, 0x37, 0x34, 0x31, 0x32, 0x23, 0x20, 0x25, 0x26, 0x2F, 0x2C, 0x29, 0x2A, 
                 0x0B, 0x08, 0x0D, 0x0E, 0x07, 0x04, 0x01, 0x02, 0x13, 0x10, 0x15, 0x16, 0x1F, 0x1C, 0x19, 0x1A 
-                ]
-                
-            valueEngine1 = [(i+offset&0xFF) for i in valueEngine1]
-            valueEngine2 = [(i+offset&0xFF) for i in valueEngine2]
-            
-            
+            ]
+
+            valueEngine1 = [(i + offset & 0xFF) for i in valueEngine1]
+            valueEngine2 = [(i + offset & 0xFF) for i in valueEngine2]
+
             v42 = [0] * 16
 
-            v42[0] = ( valueEngine2[tmppass[1]] ^ valueEngine1[tmppass[0]] ^ tmppass[3] ^ tmppass[2] )
-            v42[1] = valueEngine2[tmppass[2]] ^ (valueEngine1[tmppass[1]] ^ tmppass[3] ^ tmppass[0])
-            v42[2] = valueEngine2[tmppass[3]] ^ (valueEngine1[tmppass[2]] ^ (tmppass[1] ^ tmppass[0])) 
-            v42[3] = valueEngine1[tmppass[3]] ^ (valueEngine2[tmppass[0]] ^ (tmppass[2] ^ tmppass[1]))
-            v42[4] = ( valueEngine2[tmppass[5]] ^ valueEngine1[tmppass[4]] ^ tmppass[7] ^ tmppass[6])
-            v42[5] = valueEngine2[tmppass[6]] ^ valueEngine1[tmppass[5]] ^ tmppass[7] ^ tmppass[4]
-            v42[6] = valueEngine2[tmppass[7]] ^ (valueEngine1[tmppass[6]] ^ tmppass[5] ^ tmppass[4])
-            v42[7] = valueEngine1[tmppass[7]] ^ valueEngine2[tmppass[4]] ^ tmppass[6] ^ tmppass[5]
-            v42[8] = valueEngine2[tmppass[9]] ^ valueEngine1[tmppass[8]] ^ tmppass[11] ^ tmppass[10]
-            v42[9] = valueEngine2[tmppass[10]] ^ valueEngine1[tmppass[9]] ^ tmppass[11] ^ tmppass[8]
-            v42[10] = valueEngine2[tmppass[11]] ^ valueEngine1[tmppass[10]] ^ tmppass[9] ^ tmppass[8]
-            v42[11] = valueEngine1[tmppass[11]] ^ (valueEngine2[tmppass[8]] ^ (tmppass[10] ^ tmppass[9]))
-            v42[12] = valueEngine2[tmppass[13]] ^ valueEngine1[tmppass[12]] ^ tmppass[15] ^ tmppass[14]
-            v42[13] = valueEngine2[tmppass[14]] ^ valueEngine1[tmppass[13]] ^ tmppass[15] ^ tmppass[12]
-            v42[14] = valueEngine2[tmppass[15]] ^ (valueEngine1[tmppass[14]] ^ tmppass[13] ^ tmppass[12])
-            v42[15] = valueEngine1[tmppass[15]] ^ valueEngine2[tmppass[12]] ^ tmppass[14] ^ tmppass[13]
-            
-            
-
+            v42[0] = (
+                valueEngine2[tmppass[1]]
+                ^ valueEngine1[tmppass[0]]
+                ^ tmppass[3]
+                ^ tmppass[2]
+            )
+            v42[1] = valueEngine2[tmppass[2]] ^ (
+                valueEngine1[tmppass[1]] ^ tmppass[3] ^ tmppass[0]
+            )
+            v42[2] = valueEngine2[tmppass[3]] ^ (
+                valueEngine1[tmppass[2]] ^ (tmppass[1] ^ tmppass[0])
+            )
+            v42[3] = valueEngine1[tmppass[3]] ^ (
+                valueEngine2[tmppass[0]] ^ (tmppass[2] ^ tmppass[1])
+            )
+            v42[4] = (
+                valueEngine2[tmppass[5]]
+                ^ valueEngine1[tmppass[4]]
+                ^ tmppass[7]
+                ^ tmppass[6]
+            )
+            v42[5] = (
+                valueEngine2[tmppass[6]]
+                ^ valueEngine1[tmppass[5]]
+                ^ tmppass[7]
+                ^ tmppass[4]
+            )
+            v42[6] = valueEngine2[tmppass[7]] ^ (
+                valueEngine1[tmppass[6]] ^ tmppass[5] ^ tmppass[4]
+            )
+            v42[7] = (
+                valueEngine1[tmppass[7]]
+                ^ valueEngine2[tmppass[4]]
+                ^ tmppass[6]
+                ^ tmppass[5]
+            )
+            v42[8] = (
+                valueEngine2[tmppass[9]]
+                ^ valueEngine1[tmppass[8]]
+                ^ tmppass[11]
+                ^ tmppass[10]
+            )
+            v42[9] = (
+                valueEngine2[tmppass[10]]
+                ^ valueEngine1[tmppass[9]]
+                ^ tmppass[11]
+                ^ tmppass[8]
+            )
+            v42[10] = (
+                valueEngine2[tmppass[11]]
+                ^ valueEngine1[tmppass[10]]
+                ^ tmppass[9]
+                ^ tmppass[8]
+            )
+            v42[11] = valueEngine1[tmppass[11]] ^ (
+                valueEngine2[tmppass[8]] ^ (tmppass[10] ^ tmppass[9])
+            )
+            v42[12] = (
+                valueEngine2[tmppass[13]]
+                ^ valueEngine1[tmppass[12]]
+                ^ tmppass[15]
+                ^ tmppass[14]
+            )
+            v42[13] = (
+                valueEngine2[tmppass[14]]
+                ^ valueEngine1[tmppass[13]]
+                ^ tmppass[15]
+                ^ tmppass[12]
+            )
+            v42[14] = valueEngine2[tmppass[15]] ^ (
+                valueEngine1[tmppass[14]] ^ tmppass[13] ^ tmppass[12]
+            )
+            v42[15] = (
+                valueEngine1[tmppass[15]]
+                ^ valueEngine2[tmppass[12]]
+                ^ tmppass[14]
+                ^ tmppass[13]
+            )
 
             for i in range(16):
                 tmppass[i] = v42[i]
-                
+
             tmp_long_pass = []
-            
-            for i in range(count*16, (count+1)*16):
+
+            for i in range(count * 16, (count + 1) * 16):
                 tmp_long_pass.append(long_pass[i])
-                
+
             for i in range(16):
                 tmp = tmppass[i] ^ tmp_long_pass[i]
-                tmppass[i] = tmp            
-            
+                tmppass[i] = tmp
+
             for i in range(16):
                 newpass[i] = tmppass[i]
-            #print for debug
-            #print ("\n\nEND LOOP ", T, " ==> ", [hex(i) for i in newpass] )
-            count+=1
-                ##############
-                #  END LOOP  #
-                ##############
-                
+            count += 1
+            ##############
+            #  END LOOP  #
+            ##############
 
-        
         for i in range(16):
             tmp = tmppass[i]
             tmp = values1[tmp]
             newpass[i] = tmp
-            
+
         tmppass = []
         for i in [0, 5, 10, 15, 4, 9, 14, 3, 8, 13, 2, 7, 12, 1, 6, 11]:
             tmppass.append(newpass[i])
-          
+
         for i in range(16):
-            tmp = tmppass[i] ^ tempo_pass[i] 
+            tmp = tmppass[i] ^ tempo_pass[i]
             tmppass[i] = tmp
-        #print for debug   
-        #print ("\n\ntmppass final ==> ", [hex(i) for i in tmppass] )
 
         for i in range(16):
             encryptString.append(tmppass[i])
-        #print for debug
-        #print( "\n\nEncryptedString ==> ", [hex(i) for i in encryptString] )
-        T+=1
-        
 
+        T += 1
 
     hex_bytes = []
     for hex_str in encryptString:
-        hex_byte = hex_str.to_bytes(1, 'big') 
+        hex_byte = hex_str.to_bytes(1, "big")
         hex_bytes.append(hex_byte)
-        
 
-    b64encryptredString = base64.b64encode(b''.join(hex_bytes)).decode()
-    print("\n\nEncrypted data : \n", b64encryptredString )
-
-
-
-
-
-
+    b64encryptredString = base64.b64encode(b"".join(hex_bytes)).decode()
+    print("\n\nEncrypted data : \n", b64encryptredString)
 
 
 def decryptSring(data, key, long_data_with_pass, long_pass, offset):
     decryptSrings = ""
     data = base64.b64decode(data)
-    #print for debug
-    #print(data)
+
     len_max = len(data)
-    #print for debug
-    #print(len_max)
+
     for i in range(16):
-        if (len_max+i)%16 == 0:
+        if (len_max + i) % 16 == 0:
             break
         else:
             data += b"\x00"
-    #print for debug
-    #print(data)
+
     tempo_pass = []
-    for i in range(0xa0, len(long_data_with_pass)):
+    for i in range(0xA0, len(long_data_with_pass)):
         tempo_pass.append(long_data_with_pass[i])
-            
+
     T = 0
-    while T < (len_max/16):
+    while T < (len_max / 16):
         newpass = []
         for i in range(16):
-            tmp = data[(16*T)+i] ^ tempo_pass[i]
+            tmp = data[(16 * T) + i] ^ tempo_pass[i]
             newpass.append(tmp)
-            
+
         tmppass = []
-        for i in [0, 0x0d, 0xa, 7, 4, 1, 0x0e, 0x0b, 8, 5, 2, 0x0f, 0x0c, 9, 6, 3]:
+        for i in [0, 0x0D, 0xA, 7, 4, 1, 0x0E, 0x0B, 8, 5, 2, 0x0F, 0x0C, 9, 6, 3]:
             tmppass.append(newpass[i])
-                
-        
+
         values3 = [
-        0x52, 0x09, 0x6A, 0xD5, 0x30, 0x36, 0xA5, 0x38, 0xBF, 0x40, 0xA3, 0x9E, 0x81, 0xF3, 0xD7, 0xFB,
-        0x7C, 0xE3, 0x39, 0x82, 0x9B, 0x2F, 0xFF, 0x87, 0x34, 0x8E, 0x43, 0x44, 0xC4, 0xDE, 0xE9, 0xCB,
-        0x54, 0x7B, 0x94, 0x32, 0xA6, 0xC2, 0x23, 0x3D, 0xEE, 0x4C, 0x95, 0x0B, 0x42, 0xFA, 0xC3, 0x4E,
-        0x08, 0x2E, 0xA1, 0x66, 0x28, 0xD9, 0x24, 0xB2, 0x76, 0x5B, 0xA2, 0x49, 0x6D, 0x8B, 0xD1, 0x25,
-        0x72, 0xF8, 0xF6, 0x64, 0x86, 0x68, 0x98, 0x16, 0xD4, 0xA4, 0x5C, 0xCC, 0x5D, 0x65, 0xB6, 0x92,
-        0x6C, 0x70, 0x48, 0x50, 0xFD, 0xED, 0xB9, 0xDA, 0x5E, 0x15, 0x46, 0x57, 0xA7, 0x8D, 0x9D, 0x84,
-        0x90, 0xD8, 0xAB, 0x00, 0x8C, 0xBC, 0xD3, 0x0A, 0xF7, 0xE4, 0x58, 0x05, 0xB8, 0xB3, 0x45, 0x06,
-        0xD0, 0x2C, 0x1E, 0x8F, 0xCA, 0x3F, 0x0F, 0x02, 0xC1, 0xAF, 0xBD, 0x03, 0x01, 0x13, 0x8A, 0x6B,
-        0x3A, 0x91, 0x11, 0x41, 0x4F, 0x67, 0xDC, 0xEA, 0x97, 0xF2, 0xCF, 0xCE, 0xF0, 0xB4, 0xE6, 0x73,
-        0x96, 0xAC, 0x74, 0x22, 0xE7, 0xAD, 0x35, 0x85, 0xE2, 0xF9, 0x37, 0xE8, 0x1C, 0x75, 0xDF, 0x6E,
-        0x47, 0xF1, 0x1A, 0x71, 0x1D, 0x29, 0xC5, 0x89, 0x6F, 0xB7, 0x62, 0x0E, 0xAA, 0x18, 0xBE, 0x1B,
-        0xFC, 0x56, 0x3E, 0x4B, 0xC6, 0xD2, 0x79, 0x20, 0x9A, 0xDB, 0xC0, 0xFE, 0x78, 0xCD, 0x5A, 0xF4,
-        0x1F, 0xDD, 0xA8, 0x33, 0x88, 0x07, 0xC7, 0x31, 0xB1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xEC, 0x5F,
-        0x60, 0x51, 0x7F, 0xA9, 0x19, 0xB5, 0x4A, 0x0D, 0x2D, 0xE5, 0x7A, 0x9F, 0x93, 0xC9, 0x9C, 0xEF,
-        0xA0, 0xE0, 0x3B, 0x4D, 0xAE, 0x2A, 0xF5, 0xB0, 0xC8, 0xEB, 0xBB, 0x3C, 0x83, 0x53, 0x99, 0x61,
-        0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D
+            0x52, 0x09, 0x6A, 0xD5, 0x30, 0x36, 0xA5, 0x38, 0xBF, 0x40, 0xA3, 0x9E, 0x81, 0xF3, 0xD7, 0xFB,
+            0x7C, 0xE3, 0x39, 0x82, 0x9B, 0x2F, 0xFF, 0x87, 0x34, 0x8E, 0x43, 0x44, 0xC4, 0xDE, 0xE9, 0xCB,
+            0x54, 0x7B, 0x94, 0x32, 0xA6, 0xC2, 0x23, 0x3D, 0xEE, 0x4C, 0x95, 0x0B, 0x42, 0xFA, 0xC3, 0x4E,
+            0x08, 0x2E, 0xA1, 0x66, 0x28, 0xD9, 0x24, 0xB2, 0x76, 0x5B, 0xA2, 0x49, 0x6D, 0x8B, 0xD1, 0x25,
+            0x72, 0xF8, 0xF6, 0x64, 0x86, 0x68, 0x98, 0x16, 0xD4, 0xA4, 0x5C, 0xCC, 0x5D, 0x65, 0xB6, 0x92,
+            0x6C, 0x70, 0x48, 0x50, 0xFD, 0xED, 0xB9, 0xDA, 0x5E, 0x15, 0x46, 0x57, 0xA7, 0x8D, 0x9D, 0x84,
+            0x90, 0xD8, 0xAB, 0x00, 0x8C, 0xBC, 0xD3, 0x0A, 0xF7, 0xE4, 0x58, 0x05, 0xB8, 0xB3, 0x45, 0x06,
+            0xD0, 0x2C, 0x1E, 0x8F, 0xCA, 0x3F, 0x0F, 0x02, 0xC1, 0xAF, 0xBD, 0x03, 0x01, 0x13, 0x8A, 0x6B,
+            0x3A, 0x91, 0x11, 0x41, 0x4F, 0x67, 0xDC, 0xEA, 0x97, 0xF2, 0xCF, 0xCE, 0xF0, 0xB4, 0xE6, 0x73,
+            0x96, 0xAC, 0x74, 0x22, 0xE7, 0xAD, 0x35, 0x85, 0xE2, 0xF9, 0x37, 0xE8, 0x1C, 0x75, 0xDF, 0x6E,
+            0x47, 0xF1, 0x1A, 0x71, 0x1D, 0x29, 0xC5, 0x89, 0x6F, 0xB7, 0x62, 0x0E, 0xAA, 0x18, 0xBE, 0x1B,
+            0xFC, 0x56, 0x3E, 0x4B, 0xC6, 0xD2, 0x79, 0x20, 0x9A, 0xDB, 0xC0, 0xFE, 0x78, 0xCD, 0x5A, 0xF4,
+            0x1F, 0xDD, 0xA8, 0x33, 0x88, 0x07, 0xC7, 0x31, 0xB1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xEC, 0x5F,
+            0x60, 0x51, 0x7F, 0xA9, 0x19, 0xB5, 0x4A, 0x0D, 0x2D, 0xE5, 0x7A, 0x9F, 0x93, 0xC9, 0x9C, 0xEF,
+            0xA0, 0xE0, 0x3B, 0x4D, 0xAE, 0x2A, 0xF5, 0xB0, 0xC8, 0xEB, 0xBB, 0x3C, 0x83, 0x53, 0x99, 0x61,
+            0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D
         ]
-        values3 = [(i+offset&0xFF) for i in values3]
+        values3 = [(i + offset & 0xFF) for i in values3]
 
         for i in range(16):
             tmp = tmppass[i]
             tmp = values3[tmp]
             newpass[i] = tmp
-            
-            
+
             ##############
             # START LOOP #
             ##############
-            
+
         count = 9
-        while (count > 0):
+        while count > 0:
             tmp_long_pass = []
-            for i in range((count-1)*16, count*16):
+            for i in range((count - 1) * 16, count * 16):
                 tmp_long_pass.append(long_pass[i])
-                
+
             for i in range(16):
                 tmp = newpass[i] ^ tmp_long_pass[i]
-                newpass[i] = tmp 
-
+                newpass[i] = tmp
 
             valueEngine1 = [
                 0x00, 0x0E, 0x1C, 0x12, 0x38, 0x36, 0x24, 0x2A, 0x70, 0x7E, 0x6C, 0x62, 0x48, 0x46, 0x54, 0x5A,
@@ -269,7 +300,7 @@ def decryptSring(data, key, long_data_with_pass, long_pass, offset):
                 0x0C, 0x02, 0x10, 0x1E, 0x34, 0x3A, 0x28, 0x26, 0x7C, 0x72, 0x60, 0x6E, 0x44, 0x4A, 0x58, 0x56,
                 0x37, 0x39, 0x2B, 0x25, 0x0F, 0x01, 0x13, 0x1D, 0x47, 0x49, 0x5B, 0x55, 0x7F, 0x71, 0x63, 0x6D,
                 0xD7, 0xD9, 0xCB, 0xC5, 0xEF, 0xE1, 0xF3, 0xFD, 0xA7, 0xA9, 0xBB, 0xB5, 0x9F, 0x91, 0x83, 0x8D
-                ]
+            ]
                
             valueEngine2 = [ 
                 0x00, 0x0D, 0x1A, 0x17, 0x34, 0x39, 0x2E, 0x23, 0x68, 0x65, 0x72, 0x7F, 0x5C, 0x51, 0x46, 0x4B,
@@ -288,7 +319,7 @@ def decryptSring(data, key, long_data_with_pass, long_pass, offset):
                 0x67, 0x6A, 0x7D, 0x70, 0x53, 0x5E, 0x49, 0x44, 0x0F, 0x02, 0x15, 0x18, 0x3B, 0x36, 0x21, 0x2C,
                 0x0C, 0x01, 0x16, 0x1B, 0x38, 0x35, 0x22, 0x2F, 0x64, 0x69, 0x7E, 0x73, 0x50, 0x5D, 0x4A, 0x47,
                 0xDC, 0xD1, 0xC6, 0xCB, 0xE8, 0xE5, 0xF2, 0xFF, 0xB4, 0xB9, 0xAE, 0xA3, 0x80, 0x8D, 0x9A, 0x97 
-                ]
+            ]
                 
             valueEngine3 = [ 
                 0x00, 0x09, 0x12, 0x1B, 0x24, 0x2D, 0x36, 0x3F, 0x48, 0x41, 0x5A, 0x53, 0x6C, 0x65, 0x7E, 0x77,
@@ -307,7 +338,7 @@ def decryptSring(data, key, long_data_with_pass, long_pass, offset):
                 0x0A, 0x03, 0x18, 0x11, 0x2E, 0x27, 0x3C, 0x35, 0x42, 0x4B, 0x50, 0x59, 0x66, 0x6F, 0x74, 0x7D,
                 0xA1, 0xA8, 0xB3, 0xBA, 0x85, 0x8C, 0x97, 0x9E, 0xE9, 0xE0, 0xFB, 0xF2, 0xCD, 0xC4, 0xDF, 0xD6,
                 0x31, 0x38, 0x23, 0x2A, 0x15, 0x1C, 0x07, 0x0E, 0x79, 0x70, 0x6B, 0x62, 0x5D, 0x54, 0x4F, 0x46
-                ]   
+            ]   
                 
             valueEngine4 = [ 
                 0x00, 0x0B, 0x16, 0x1D, 0x2C, 0x27, 0x3A, 0x31, 0x58, 0x53, 0x4E, 0x45, 0x74, 0x7F, 0x62, 0x69,
@@ -326,80 +357,134 @@ def decryptSring(data, key, long_data_with_pass, long_pass, offset):
                 0xB1, 0xBA, 0xA7, 0xAC, 0x9D, 0x96, 0x8B, 0x80, 0xE9, 0xE2, 0xFF, 0xF4, 0xC5, 0xCE, 0xD3, 0xD8,
                 0x7A, 0x71, 0x6C, 0x67, 0x56, 0x5D, 0x40, 0x4B, 0x22, 0x29, 0x34, 0x3F, 0x0E, 0x05, 0x18, 0x13,
                 0xCA, 0xC1, 0xDC, 0xD7, 0xE6, 0xED, 0xF0, 0xFB, 0x92, 0x99, 0x84, 0x8F, 0xBE, 0xB5, 0xA8, 0xA3 
-                ]
-                
-            valueEngine1 = [(i+offset&0xFF) for i in valueEngine1]
-            valueEngine2 = [(i+offset&0xFF) for i in valueEngine2]
-            valueEngine3 = [(i+offset&0xFF) for i in valueEngine3]
-            valueEngine4 = [(i+offset&0xFF) for i in valueEngine4]
-            
-            
+            ]
+
+            valueEngine1 = [(i + offset & 0xFF) for i in valueEngine1]
+            valueEngine2 = [(i + offset & 0xFF) for i in valueEngine2]
+            valueEngine3 = [(i + offset & 0xFF) for i in valueEngine3]
+            valueEngine4 = [(i + offset & 0xFF) for i in valueEngine4]
+
             result = [0] * 16
-            
-            result[0] = valueEngine3[newpass[3]] ^ valueEngine2[newpass[2]] ^ valueEngine4[newpass[1]] ^ valueEngine1[newpass[0]]
-            result[1] = valueEngine2[newpass[3]] ^ valueEngine4[newpass[2]] ^ valueEngine1[newpass[1]] ^ valueEngine3[newpass[0]]
-            result[2] = valueEngine4[newpass[3]] ^ valueEngine1[newpass[2]] ^ valueEngine3[newpass[1]] ^ valueEngine2[newpass[0]]
-            result[3] = valueEngine1[newpass[3]] ^ (valueEngine3[newpass[2]] ^ (valueEngine2[newpass[1]] ^ valueEngine4[newpass[0]]))
-            result[4] = valueEngine3[newpass[7]] ^ valueEngine2[newpass[6]] ^ valueEngine4[newpass[5]] ^ valueEngine1[newpass[4]]
-            result[5] = valueEngine2[newpass[7]] ^ valueEngine4[newpass[6]] ^ valueEngine1[newpass[5]] ^ valueEngine3[newpass[4]]
-            result[6] = valueEngine4[newpass[7]] ^ valueEngine1[newpass[6]] ^ valueEngine3[newpass[5]] ^ valueEngine2[newpass[4]]
-            result[7] = valueEngine1[newpass[7]] ^ (valueEngine3[newpass[6]] ^ (valueEngine2[newpass[5]] ^ valueEngine4[newpass[4]]))
-            result[8] = valueEngine3[newpass[11]] ^ valueEngine2[newpass[10]] ^ valueEngine4[newpass[9]] ^ valueEngine1[newpass[8]]
-            result[9] = valueEngine2[newpass[11]] ^ valueEngine4[newpass[10]] ^ valueEngine1[newpass[9]] ^ valueEngine3[newpass[8]]
-            result[10] = valueEngine4[newpass[11]] ^ valueEngine1[newpass[10]] ^ valueEngine3[newpass[9]] ^ valueEngine2[newpass[8]]
-            result[11] = valueEngine1[newpass[11]] ^ (valueEngine3[newpass[10]] ^ (valueEngine2[newpass[9]] ^ valueEngine4[newpass[8]]))
-            result[12] = valueEngine3[newpass[15]] ^ valueEngine2[newpass[14]] ^ valueEngine4[newpass[13]] ^ valueEngine1[newpass[12]]
-            result[13] = valueEngine2[newpass[15]] ^ valueEngine4[newpass[14]] ^ valueEngine1[newpass[13]] ^ valueEngine3[newpass[12]]
-            result[14] = valueEngine4[newpass[15]] ^ valueEngine1[newpass[14]] ^ valueEngine3[newpass[13]] ^ valueEngine2[newpass[12]]
-            result[15] = (valueEngine2[newpass[13]] ^ valueEngine4[newpass[12]]) ^ (valueEngine3[newpass[14]]) ^ valueEngine1[newpass[15]]
-            
-            
-            
+
+            result[0] = (
+                valueEngine3[newpass[3]]
+                ^ valueEngine2[newpass[2]]
+                ^ valueEngine4[newpass[1]]
+                ^ valueEngine1[newpass[0]]
+            )
+            result[1] = (
+                valueEngine2[newpass[3]]
+                ^ valueEngine4[newpass[2]]
+                ^ valueEngine1[newpass[1]]
+                ^ valueEngine3[newpass[0]]
+            )
+            result[2] = (
+                valueEngine4[newpass[3]]
+                ^ valueEngine1[newpass[2]]
+                ^ valueEngine3[newpass[1]]
+                ^ valueEngine2[newpass[0]]
+            )
+            result[3] = valueEngine1[newpass[3]] ^ (
+                valueEngine3[newpass[2]]
+                ^ (valueEngine2[newpass[1]] ^ valueEngine4[newpass[0]])
+            )
+            result[4] = (
+                valueEngine3[newpass[7]]
+                ^ valueEngine2[newpass[6]]
+                ^ valueEngine4[newpass[5]]
+                ^ valueEngine1[newpass[4]]
+            )
+            result[5] = (
+                valueEngine2[newpass[7]]
+                ^ valueEngine4[newpass[6]]
+                ^ valueEngine1[newpass[5]]
+                ^ valueEngine3[newpass[4]]
+            )
+            result[6] = (
+                valueEngine4[newpass[7]]
+                ^ valueEngine1[newpass[6]]
+                ^ valueEngine3[newpass[5]]
+                ^ valueEngine2[newpass[4]]
+            )
+            result[7] = valueEngine1[newpass[7]] ^ (
+                valueEngine3[newpass[6]]
+                ^ (valueEngine2[newpass[5]] ^ valueEngine4[newpass[4]])
+            )
+            result[8] = (
+                valueEngine3[newpass[11]]
+                ^ valueEngine2[newpass[10]]
+                ^ valueEngine4[newpass[9]]
+                ^ valueEngine1[newpass[8]]
+            )
+            result[9] = (
+                valueEngine2[newpass[11]]
+                ^ valueEngine4[newpass[10]]
+                ^ valueEngine1[newpass[9]]
+                ^ valueEngine3[newpass[8]]
+            )
+            result[10] = (
+                valueEngine4[newpass[11]]
+                ^ valueEngine1[newpass[10]]
+                ^ valueEngine3[newpass[9]]
+                ^ valueEngine2[newpass[8]]
+            )
+            result[11] = valueEngine1[newpass[11]] ^ (
+                valueEngine3[newpass[10]]
+                ^ (valueEngine2[newpass[9]] ^ valueEngine4[newpass[8]])
+            )
+            result[12] = (
+                valueEngine3[newpass[15]]
+                ^ valueEngine2[newpass[14]]
+                ^ valueEngine4[newpass[13]]
+                ^ valueEngine1[newpass[12]]
+            )
+            result[13] = (
+                valueEngine2[newpass[15]]
+                ^ valueEngine4[newpass[14]]
+                ^ valueEngine1[newpass[13]]
+                ^ valueEngine3[newpass[12]]
+            )
+            result[14] = (
+                valueEngine4[newpass[15]]
+                ^ valueEngine1[newpass[14]]
+                ^ valueEngine3[newpass[13]]
+                ^ valueEngine2[newpass[12]]
+            )
+            result[15] = (
+                (valueEngine2[newpass[13]] ^ valueEngine4[newpass[12]])
+                ^ (valueEngine3[newpass[14]])
+                ^ valueEngine1[newpass[15]]
+            )
+
             for i in range(16):
                 tmppass[i] = result[i]
-                
-                
+
             tmppass = []
-            for i in [0, 0x0d, 0xa, 7, 4, 1, 0x0e, 0x0b, 8, 5, 2, 0x0f, 0x0c, 9, 6, 3]:
+            for i in [0, 0x0D, 0xA, 7, 4, 1, 0x0E, 0x0B, 8, 5, 2, 0x0F, 0x0C, 9, 6, 3]:
                 tmppass.append(result[i])
-            
-            
+
             for i in range(16):
                 tmp = tmppass[i]
                 tmp = values3[tmp]
                 newpass[i] = tmp
-                   
 
+            count -= 1
+            ##############
+            #  END LOOP  #
+            ##############
 
-            count-=1
-                ##############
-                #  END LOOP  #
-                ##############
-                
-
-        
-        
         for i in range(16):
-            tmp = newpass[i] ^ key[i] 
+            tmp = newpass[i] ^ key[i]
             newpass[i] = tmp
-            
-            
 
         decryptSrings += "".join([chr(k) for k in newpass])
-        T+=1
-        
-        
-    print( "\n\nDecrypted data : \n", decryptSrings )
-    
-    
-    
-    
-    
-    
-    
-    
+        T += 1
+
+    print("\n\nDecrypted data : \n", decryptSrings)
+
+
 if __name__ == "__main__":
-    
+
     parser = argparse.ArgumentParser(description="Encrypt or decrypt data of BRC4.")
     parser.add_argument("choice", help="d for decrypt or e for encrypt")
     parser.add_argument("offset", help="offset for encryption/decryption")
@@ -408,10 +493,9 @@ if __name__ == "__main__":
     offset = int(args.offset)
     mykey = [ord(i) for i in args.mykey]
     if len(mykey) < 16:
-        for i in range(16-len(mykey)):
+        for i in range(16 - len(mykey)):
             mykey.append(0x00)
-    
-    
+
     values1 = [ 
         0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76, 
         0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0, 
@@ -429,7 +513,7 @@ if __name__ == "__main__":
         0x70, 0x3E, 0xB5, 0x66, 0x48, 0x03, 0xF6, 0x0E, 0x61, 0x35, 0x57, 0xB9, 0x86, 0xC1, 0x1D, 0x9E, 
         0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94, 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF, 
         0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16 
-        ]
+    ]
 
     values2 = [ 
         0x8D, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36, 0x6C, 0xD8, 0xAB, 0x4D, 0x9A, 
@@ -464,20 +548,17 @@ if __name__ == "__main__":
         0x70, 0x3E, 0xB5, 0x66, 0x48, 0x03, 0xF6, 0x0E, 0x61, 0x35, 0x57, 0xB9, 0x86, 0xC1, 0x1D, 0x9E, 
         0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94, 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF, 
         0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16 
-        ]
+    ]
 
-    values1 = [(i+offset&0xFF) for i in values1]
-    values2 = [(i+offset&0xFF) for i in values2]
-    
-    
-    
-    
+    values1 = [(i + offset & 0xFF) for i in values1]
+    values2 = [(i + offset & 0xFF) for i in values2]
+
     mypass = []
     for i in mykey:
         mypass.append(i)
-    
+
     edx = 1
-    
+
     keytmp = [i for i in mypass[-4:]]
     key = [0, 0, 0, 0]
     key[0] = keytmp[1]
@@ -491,29 +572,25 @@ if __name__ == "__main__":
     newkey.append(values1[key[3]])
     newkey[0] = values1[key[0]] ^ values2[edx]
     key = newkey
-            
-    #print for debug
-    #print([hex(i) for i in key])
 
-    
     long_pass = []
 
     i = 0
     z = 0
     zz = 0
-    
-    while z <= 0xb0:
+
+    while z <= 0xB0:
         if z != 0:
             if z == 160:
                 save_mypass = []
                 for x in range(len(mypass)):
                     save_mypass.append(mypass[x])
-                    
+
             if z == 156:
                 save_key = []
                 for x in range(len(key)):
                     save_key.append(key[x])
-                    
+
         for j in range(0x04):
             tmp = mypass[i] ^ key[j]
             mypass[i] = tmp
@@ -525,12 +602,11 @@ if __name__ == "__main__":
             zz += 1
             if i == 0x10:
                 i = 0
-                
+
         if zz == 16:
             zz = 0
             edx += 1
-            
-            
+
             keytmp = []
             for l in range(4):
                 keytmp.append(key[l])
@@ -546,48 +622,18 @@ if __name__ == "__main__":
             newkey[0] = values1[key[0]] ^ values2[edx]
             key = newkey
 
-            
-      
-    #print for debug
-    #print('''
-    #Results at the end, T -> %d :
-    #pass  => %s
-    #key   => %s 
-    #
-    #Saved results probably better than the first result, T -> %d :
-    #pass  => %s
-    #key   => %s 
-    #lpass => %s
-    #chr   => %s
-    #''' % (z, [hex(k) for k in mypass], [hex(k) for k in key], 160, [hex(k) for k in save_mypass], [hex(k) for k in save_key], [hex(k) for k in long_pass], [chr(k) for k in long_pass] ) )
-
-
-
-
-
     key = []
     for i in mykey:
         key.append(i)
-        
 
-    #print for debug
-    #print(key)
     long_data_with_pass = key + long_pass
-    #print for debug
-    #print( [chr(i) for i in long_data_with_pass] )
-    
-    
-    
-    
-    
+
     if args.choice in ["e", "encrypt"]:
-        #insert json in data
-        data = ''
+        # insert json in data
+        data = ""
         encryptSring(data, key, values1, long_data_with_pass, long_pass, offset)
-        
+
     elif args.choice in ["d", "decrypt"]:
-        #insert base64 value in data
+        # insert base64 value in data
         data = ""
         decryptSring(data, key, long_data_with_pass, long_pass, offset)
-
-
